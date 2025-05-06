@@ -6,10 +6,58 @@
     <title>Face Comparison</title>
 </head>
 <body>
+    <style>
+        .image-container {
+          position: relative;
+          display: inline-block;
+        }
+      
+        #preview {
+          max-width: 100%;
+          height: auto;
+        }
+      
+        .overlay-image {
+          position: absolute;
+          top: 0px;
+          left: 0px;
+          width: 512px;
+          opacity: 0.75;
+          pointer-events: none;
+        }
+    </style>
     <h1>Upload an Image to Compare</h1>
     <form action="/upload" method="post" enctype="multipart/form-data">
-        <input type="file" name="file" accept="image/*" required>
+        <input type="file" id="imageInput" name="file" accept="image/*" required>
         <button type="submit">Upload</button>
     </form>
+    <br>
+    <h3>Image Preview</h3>
+    <p>For best results, ensure the face is in the higlighted region.</p>
+    <div class = "image-container">
+        <img id="imagePreview" src="#" style="max-width:512px;">
+        <img class="overlay-image" src="/static/overlay.png">
+    </div>
+    <script>
+        const imageInput = document.getElementById('imageInput');
+        const preview = document.getElementById('imagePreview');
+      
+        imageInput.addEventListener('change', function () {
+          const file = this.files[0];
+          if (file) {
+            const reader = new FileReader();
+            
+            reader.onload = function (e) {
+              preview.setAttribute('src', e.target.result);
+              preview.style.display = 'block';
+            };
+            
+            reader.readAsDataURL(file);
+          } else {
+            preview.style.display = 'none';
+            preview.setAttribute('src', '#');
+          }
+        });
+      </script>      
 </body>
 </html>
