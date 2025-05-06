@@ -11,21 +11,24 @@
             display: block;
             margin: 20px 0;
         }
-        .container {
-            text-align: center;
+        .grid-container {
+            display: grid;
+            grid-template-columns: auto auto;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Face Comparison Result</h1>
-        <p><strong>Similarity Score:</strong> {{ similarity }}</p>
-        <h2>Uploaded Image:</h2>
-        <img src="{{ url_for('uploaded_file', filename=user_image_filename) }}" alt="User Uploaded Image">
-        
-        <h2>Most Similar Player:</h2>
-        <p><strong>Player Name:</strong> {{ player_name }}</p>
-        <img src="{{ url_for('static', filename='img/' + player_image) }}" alt="Most Similar Player">
+    <h1>Face Comparison Result</h1>
+    <h2><strong>Similarity Score:</strong> {{ similarity }}</h2>
+    <div class="grid-container">
+        <div>
+            <h2>Uploaded Image:</h2>
+            <img src="{{ user_image_path }}" alt="User Uploaded Image" style="max-width:512px;">
+        </div>
+        <div>
+            <h2>Most Similar Player: {{ player_name }}</p>
+            <img src="{{ player_image_path }}" alt="Most Similar Player" style="max-width:512px;">
+        </div>
     </div>
 </body>
 </html>

@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Preview</title>
+</head>
+<h1>Image Preview</h1>
+<body>
+    <div><img src="{{ url_for('uploaded_file', filename=user_image_filename) }}", style="max-width:512px;"></div>
+    <form action="/ssd" method="POST">
+        <button type="submit" name="user_image_filename" value="{{user_image_filename}}">SSD</button>
+    </form>
+</body>
+</html>
