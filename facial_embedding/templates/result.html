@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Face Comparison Result</title>
+    <style>
+        img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 20px 0;
+        }
+        .container {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Face Comparison Result</h1>
+        <p><strong>Similarity Score:</strong> {{ similarity }}</p>
+        <h2>Uploaded Image:</h2>
+        <img src="{{ url_for('uploaded_file', filename=user_image_filename) }}" alt="User Uploaded Image">
+        
+        <h2>Most Similar Player:</h2>
+        <p><strong>Player Name:</strong> {{ player_name }}</p>
+        <img src="{{ url_for('static', filename='img/' + player_image) }}" alt="Most Similar Player">
+    </div>
+</body>
+</html>
