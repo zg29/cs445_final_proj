@@ -8,8 +8,19 @@
 <h1>Image Preview</h1>
 <body>
     <div><img src="{{ url_for('uploaded_file', filename=user_image_filename) }}", style="max-width:512px;"></div>
-    <form action="/ssd" method="POST">
-        <button type="submit" name="user_image_filename" value="{{user_image_filename}}">SSD</button>
-    </form>
+    <div>
+        <form action="/ssd" method="POST" style="display: inline-block;">
+            <button type="submit" name="user_image_filename" value="{{user_image_filename}}">SSD</button>
+        </form>
+        <form action="/ssd_gray" method="POST" style="display: inline-block;">
+            <button type="submit" name="user_image_filename" value="{{user_image_filename}}">SSD Grayscale</button>
+        </form>
+        <form action="/faiss" method="POST" style="display: inline-block;">
+            <button type="submit" name="user_image_filename" value="{{user_image_filename}}">FAISS</button>
+        </form>
+        <form action="/dlib" method="POST" style="display: inline-block;">
+            <button type="submit" name="user_image_filename" value="{{user_image_filename}}">Dlib</button>
+        </form>
+    </div>
 </body>
 </html>
