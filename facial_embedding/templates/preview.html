@@ -7,7 +7,53 @@
 </head>
 <h1>Image Preview</h1>
 <body>
-    <div><img src="{{ url_for('uploaded_file', filename=user_image_filename) }}", style="max-width:512px;"></div>
+    <style>
+        .image-container {
+          position: relative;
+          display: inline-block;
+        }
+      
+        #preview {
+          max-width: 100%;
+          height: auto;
+        }
+      
+        .overlay-image {
+          position: absolute;
+          top: 0px;
+          left: 0px;
+          height: 380px;
+          width: 520px;
+          opacity: 0.75;
+          pointer-events: none;
+        }
+    </style>
+    <p>For best SSD results, ensure face is in the higlighted region.</p>
+    <div class="image-container">
+        <img id="imagePreview" src="{{ url_for('uploaded_file', filename=user_image_filename) }}" style="height:380px;width:520px">
+        <img class="overlay-image" src="/static/overlay.png">
+    </div>
+    <script>
+        const imageInput = document.getElementById('imageInput');
+        const preview = document.getElementById('imagePreview');
+      
+        imageInput.addEventListener('change', function () {
+          const file = this.files[0];
+          if (file) {
+            const reader = new FileReader();
+            
+            reader.onload = function (e) {
+              preview.setAttribute('src', e.target.result);
+              preview.style.display = 'block';
+            };
+            
+            reader.readAsDataURL(file);
+          } else {
+            preview.style.display = 'none';
+            preview.setAttribute('src', '#');
+          }
+        });
+    </script>  
     <div>
         <form action="/ssd" method="POST" style="display: inline-block;">
             <button type="submit" name="user_image_filename" value="{{user_image_filename}}">SSD</button>
