@@ -139,7 +139,7 @@ def ssd_model():
     min_player_file = os.path.basename(min_player_path)
     min_player_id = min_player_file.split('.')[0]
     player_name = get_player_name(min_player_id)
-    return render_template('result.html', title = "SSD",
+    return render_template('result.html', title = "Color SSD",
                             similarity=min_ssd, user_image_path=filepath,
                             player_name=player_name, player_image_path=min_player_path)
 
@@ -168,6 +168,73 @@ def ssd_gray_model():
     player_name = get_player_name(min_player_id)
     return render_template('result.html', title = "Grayscale SSD",
                             similarity=min_ssd, user_image_path=filepath,
+                            player_name=player_name, player_image_path=min_player_path)
+
+@app.route('/ncc_color', methods = ['POST'])
+def ncc_color_model():
+    user_image_filename = request.form.get('user_image_filename')
+    if not user_image_filename:
+        return "Invalid user filepath!"
+    filepath = os.path.join(USER_UPLOADS_FOLDER, user_image_filename)
+
+    to_match = cv2.imread(filepath, cv2.IMREAD_COLOR)
+    to_match = cv2.resize(to_match, (260, 190))[2:130,70:190]
+    to_match_norms = []
+    for c in range(3):  # Assuming 3 color channels
+        match_ch = to_match[:, :, c]
+        match_ch = (match_ch - np.mean(match_ch)) / (np.std(match_ch) + 1e-10)
+        to_match_norms.append(match_ch)
+    
+    min_ncc = sys.maxsize
+    min_player_path = ""
+    for img_file in os.listdir(IMG_FOLDER):
+        img_path = os.path.join(IMG_FOLDER, img_file)
+        img = cv2.imread(img_path, cv2.IMREAD_COLOR)
+        img = img[2:130,70:190]
+        channel_nccs = []
+        for c in range(3):
+            img_ch = img[:, :, c]
+            img_ch = (img_ch - np.mean(img_ch)) / (np.std(img_ch) + 1e-10)
+            channel_nccs.append(np.mean(img_ch * to_match_norms[c]))
+        ncc = np.mean(channel_nccs)
+        if (ncc < min_ncc):
+            min_player_path = img_path
+            min_ncc = ncc
+
+    min_player_file = os.path.basename(min_player_path)
+    min_player_id = min_player_file.split('.')[0]
+    player_name = get_player_name(min_player_id)
+    return render_template('result.html', title = "Color NCC",
+                            similarity=min_ncc, user_image_path=filepath,
+                            player_name=player_name, player_image_path=min_player_path)
+
+@app.route('/ncc_gray', methods = ['POST'])
+def ncc_gray_model():
+    user_image_filename = request.form.get('user_image_filename')
+    if not user_image_filename:
+        return "Invalid user filepath!"
+    filepath = os.path.join(USER_UPLOADS_FOLDER, user_image_filename)
+
+    to_match = cv2.imread(filepath, cv2.IMREAD_GRAYSCALE)
+    to_match = cv2.resize(to_match, (260, 190))[2:130,70:190]
+    min_ncc = sys.maxsize
+    min_player_path = ""
+    to_match_norm = (to_match - np.mean(to_match)) / (np.std(to_match) + 1e-10)
+    for img_file in os.listdir(IMG_FOLDER):
+        img_path = os.path.join(IMG_FOLDER, img_file)
+        img = cv2.imread(img_path, cv2.IMREAD_GRAYSCALE)
+        img = img[2:130,70:190]
+        img_norm = (img - np.mean(img)) / (np.std(img) + 1e-10)
+        ncc = np.mean(to_match_norm * img_norm)
+        if (ncc < min_ncc):
+            min_player_path = img_path
+            min_ncc = ncc
+
+    min_player_file = os.path.basename(min_player_path)
+    min_player_id = min_player_file.split('.')[0]
+    player_name = get_player_name(min_player_id)
+    return render_template('result.html', title = "Grayscale NCC",
+                            similarity=min_ncc, user_image_path=filepath,
                             player_name=player_name, player_image_path=min_player_path)
 
 @app.route('/faiss', methods = ['POST'])

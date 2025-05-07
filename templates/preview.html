@@ -28,7 +28,7 @@
           pointer-events: none;
         }
     </style>
-    <p>For best SSD results, ensure face is in the higlighted region.</p>
+    <p>For best SSD/NCC results, ensure face is centered in higlighted region.</p>
     <div class="image-container">
         <img id="imagePreview" src="{{ url_for('uploaded_file', filename=user_image_filename) }}" style="height:380px;width:520px">
         <img class="overlay-image" src="/static/overlay.png">
@@ -56,10 +56,16 @@
     </script>  
     <div>
         <form action="/ssd_color" method="POST" style="display: inline-block;">
-            <button type="submit" name="user_image_filename" value="{{user_image_filename}}">SSD</button>
+            <button type="submit" name="user_image_filename" value="{{user_image_filename}}">SSD Color</button>
         </form>
         <form action="/ssd_gray" method="POST" style="display: inline-block;">
             <button type="submit" name="user_image_filename" value="{{user_image_filename}}">SSD Grayscale</button>
+        </form>
+        <form action="/ncc_color" method="POST" style="display: inline-block;">
+          <button type="submit" name="user_image_filename" value="{{user_image_filename}}">NCC Color</button>
+        </form>
+        <form action="/ncc_gray" method="POST" style="display: inline-block;">
+          <button type="submit" name="user_image_filename" value="{{user_image_filename}}">NCC Grayscale</button>
         </form>
         <form action="/faiss" method="POST" style="display: inline-block;">
             <button type="submit" name="user_image_filename" value="{{user_image_filename}}">FAISS</button>
