@@ -8,6 +8,8 @@ We have used four different methods for this project to determine which NBA play
 4. Facial Embedding Comparison using Dlib
 
 ## Instructions
+Launch the project by executing app.py, then navigate to http://127.0.0.1:5000/ in a browser. 
+
 After uploading an image on the homepage, you'll see an "Image Preview" screen like this:
 <img width="538" alt="Screenshot 2025-05-07 at 2 04 01 AM" src="https://github.com/user-attachments/assets/afb43fb5-3521-42d1-80b1-d005101444c7" />
 
