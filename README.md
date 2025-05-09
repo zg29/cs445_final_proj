@@ -9,7 +9,7 @@ We have used four different methods for this project to determine which NBA play
 
 ## Instructions
 
-First, download (shape_predictor_68_face_landmarks.dat)[https://uofi.app.box.com/file/1857984083786] and (dlib_face_recognition_resnet_model_v1.dat)[https://uofi.app.box.com/file/1857995449609]. Store these files into the models folder.
+First, download [shape_predictor_68_face_landmarks.dat](https://uofi.app.box.com/file/1857984083786) and [dlib_face_recognition_resnet_model_v1.dat](https://uofi.app.box.com/file/1857995449609). Store these files into the models folder.
 
 Launch the project by executing app.py, then navigate to http://127.0.0.1:5000/ in a browser. 
 
