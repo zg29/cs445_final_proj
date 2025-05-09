@@ -48,7 +48,21 @@ def get_face_embedding(image_path):
     face = faces[0]
     shape = sp(gray, face)
     embedding = facerec.compute_face_descriptor(img, shape)
+    save_embedding(image_path, embedding)
     return np.array(embedding)
+
+def save_embedding(image_path, embedding, save_dir="embeddings"):
+    os.makedirs(save_dir, exist_ok=True)
+    # embedding = get_face_embedding(image_path)
+    if embedding is None:
+        return None
+
+    # Derive save path from image filename
+    base_name = os.path.splitext(os.path.basename(image_path))[0]
+    save_path = os.path.join(save_dir, base_name + ".npy")
+
+    np.save(save_path, embedding)
+    return embedding
 
 def compare_faces(embedding1, embedding2):
     if embedding1 is None or embedding2 is None:
@@ -116,6 +130,13 @@ def init_faiss():
     faiss_index = faiss.IndexFlatL2(features.shape[1])
     faiss_index.add(features)
     return faiss_index
+
+def load_embedding(image_name, save_dir="embeddings"):
+    path = os.path.join(save_dir, image_name + ".npy")
+    if os.path.exists(path):
+        return np.load(path)
+    else:
+        return None
 
 def extract_feature_faiss(img):
     tensor = preprocess(img).unsqueeze(0)  # shape: (1, 3, 224, 224)
@@ -403,7 +424,12 @@ def dlib_model():
             continue
 
         img_path = os.path.join(IMG_FOLDER, img_file)
-        img_embedding = get_face_embedding(img_path)
+        # img_embedding = get_face_embedding(img_path)
+        # temp_img = os.path.splitext(img_path)[0]
+        temp_img = os.path.splitext(os.path.basename(img_path))[0]
+        # print(temp_img)
+        img_embedding = load_embedding(temp_img)
+        # img_embedding = load_embedding(img_file)
         if img_embedding is not None:
             similarity = compare_faces(user_embedding, img_embedding)
             if similarity is not None and similarity > highest_similarity:
