@@ -3,76 +3,173 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Preview</title>
-</head>
-<h1>Image Preview</h1>
-<body>
+    <title>Preview & Crop</title>
     <style>
         .image-container {
-          position: relative;
-          display: inline-block;
+            position: relative; 
+            display: inline-block; 
+            width: 520px; 
+            height: 380px; 
         }
       
-        #preview {
-          max-width: 100%;
-          height: auto;
+        #imagePreview {
+            display: block; 
+            max-width: 100%;
+            height: auto;
         }
       
-        .overlay-image {
-          position: absolute;
-          top: 0px;
-          left: 0px;
-          height: 380px;
-          width: 520px;
-          opacity: 0.75;
-          pointer-events: none;
+        #selectionBox {
+            position: absolute;
+            border: 2px dashed #007bff; 
+            box-sizing: border-box;
+            cursor: move;
+            background-color: rgba(0, 123, 255, 0.3); 
+        }
+
+        .buttons-container {
+            margin-top: 20px;
+        }
+        .buttons-container form {
+            display: inline-block;
+            margin-right: 10px;
+        }
+        .buttons-container button {
+            padding: 10px 15px;
+            font-size: 14px;
+            cursor: pointer;
         }
     </style>
-    <p>For best SSD/NCC results, ensure face is centered in higlighted region.</p>
+</head>
+<body>
+    <h1>Image Preview & Crop</h1>
+    <p>Drag the highlighted region to center the face for best results.</p>
+    
     <div class="image-container">
-        <img id="imagePreview" src="{{ url_for('uploaded_file', filename=user_image_filename) }}" style="height:380px;width:520px">
-        <img class="overlay-image" src="/static/overlay.png">
+        <img id="imagePreview" src="{{ url_for('uploaded_file', filename=user_image_filename) }}" style="height:380px;width:520px;" alt="Uploaded Image Preview">
+        <div id="selectionBox"></div>
     </div>
-    <script>
-        const imageInput = document.getElementById('imageInput');
-        const preview = document.getElementById('imagePreview');
-      
-        imageInput.addEventListener('change', function () {
-          const file = this.files[0];
-          if (file) {
-            const reader = new FileReader();
-            
-            reader.onload = function (e) {
-              preview.setAttribute('src', e.target.result);
-              preview.style.display = 'block';
-            };
-            
-            reader.readAsDataURL(file);
-          } else {
-            preview.style.display = 'none';
-            preview.setAttribute('src', '#');
-          }
-        });
-    </script>  
-    <div>
-        <form action="/ssd_color" method="POST" style="display: inline-block;">
+    
+    <div class="buttons-container">
+        <form id="formSsdColor" action="/ssd_color" method="POST">
             <button type="submit" name="user_image_filename" value="{{user_image_filename}}">SSD Color</button>
         </form>
-        <form action="/ssd_gray" method="POST" style="display: inline-block;">
+        <form id="formSsdGray" action="/ssd_gray" method="POST">
             <button type="submit" name="user_image_filename" value="{{user_image_filename}}">SSD Grayscale</button>
         </form>
-        <form action="/ncc_color" method="POST" style="display: inline-block;">
-          <button type="submit" name="user_image_filename" value="{{user_image_filename}}">NCC Color</button>
+        <form id="formNccColor" action="/ncc_color" method="POST">
+            <button type="submit" name="user_image_filename" value="{{user_image_filename}}">NCC Color</button>
         </form>
-        <form action="/ncc_gray" method="POST" style="display: inline-block;">
-          <button type="submit" name="user_image_filename" value="{{user_image_filename}}">NCC Grayscale</button>
+        <form id="formNccGray" action="/ncc_gray" method="POST">
+            <button type="submit" name="user_image_filename" value="{{user_image_filename}}">NCC Grayscale</button>
         </form>
-        <form action="/faiss" method="POST" style="display: inline-block;">
+        <form id="formFaiss" action="/faiss" method="POST">
             <button type="submit" name="user_image_filename" value="{{user_image_filename}}">FAISS</button>
         </form>
-        <form action="/dlib" method="POST" style="display: inline-block;">
+        <form id="formDlib" action="/dlib" method="POST">
             <button type="submit" name="user_image_filename" value="{{user_image_filename}}">Dlib</button>
         </form>
     </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const imagePreview = document.getElementById('imagePreview');
+        const selectionBox = document.getElementById('selectionBox');
+        const imageContainer = document.querySelector('.image-container');
+
+        // Dimensions of the image display in this preview page
+        const currentPreviewWidth = imagePreview.offsetWidth;
+        const currentPreviewHeight = imagePreview.offsetHeight; 
+
+        // Original backend processing resized images to 260x190 before taking a slice.
+        const originalTargetResizeWidth = 260;
+        const originalTargetResizeHeight = 190;
+
+        const defaultCropSettings = {
+            x_on_resized: 70,
+            y_on_resized: 2,
+            width_on_resized: 120,
+            height_on_resized: 128
+        };
+
+        // calculate initial position and size for the selection box on the current preview image
+        const initialBox = {
+            x: (defaultCropSettings.x_on_resized / originalTargetResizeWidth) * currentPreviewWidth,
+            y: (defaultCropSettings.y_on_resized / originalTargetResizeHeight) * currentPreviewHeight,
+            width: (defaultCropSettings.width_on_resized / originalTargetResizeWidth) * currentPreviewWidth,
+            height: (defaultCropSettings.height_on_resized / originalTargetResizeHeight) * currentPreviewHeight
+        };
+
+        selectionBox.style.left = initialBox.x + 'px';
+        selectionBox.style.top = initialBox.y + 'px';
+        selectionBox.style.width = initialBox.width + 'px';
+        selectionBox.style.height = initialBox.height + 'px';
+
+        let isDragging = false;
+        let startX, startY, initialMouseX, initialMouseY;
+
+        selectionBox.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            startX = selectionBox.offsetLeft;
+            startY = selectionBox.offsetTop;
+            initialMouseX = e.clientX;
+            initialMouseY = e.clientY;
+            selectionBox.style.cursor = 'grabbing';
+            e.preventDefault();
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+
+            const dx = e.clientX - initialMouseX;
+            const dy = e.clientY - initialMouseY;
+
+            let newX = startX + dx;
+            let newY = startY + dy;
+
+            newX = Math.max(0, Math.min(newX, currentPreviewWidth - selectionBox.offsetWidth));
+            newY = Math.max(0, Math.min(newY, currentPreviewHeight - selectionBox.offsetHeight));
+
+            selectionBox.style.left = newX + 'px';
+            selectionBox.style.top = newY + 'px';
+        });
+
+        document.addEventListener('mouseup', () => {
+            if (isDragging) {
+                isDragging = false;
+                selectionBox.style.cursor = 'move';
+            }
+        });
+
+        const forms = document.querySelectorAll('.buttons-container form');
+        forms.forEach(form => {
+            form.addEventListener('submit', function(event) {
+                const cropX = parseFloat(selectionBox.style.left);
+                const cropY = parseFloat(selectionBox.style.top);
+                const cropWidth = selectionBox.offsetWidth;
+                const cropHeight = selectionBox.offsetHeight;
+
+                const fields = {
+                    'crop_x': cropX,
+                    'crop_y': cropY,
+                    'crop_width': cropWidth,
+                    'crop_height': cropHeight,
+                    'preview_width': currentPreviewWidth,
+                    'preview_height': currentPreviewHeight
+                };
+
+                for (const name in fields) {
+                    let input = form.querySelector(`input[name="${name}"]`);
+                    if (!input) {
+                        input = document.createElement('input');
+                        input.type = 'hidden';
+                        input.name = name;
+                        form.appendChild(input);
+                    }
+                    input.value = fields[name];
+                }
+            });
+        });
+    });
+    </script>
 </body>
 </html>
