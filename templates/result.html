@@ -10,10 +10,20 @@
             height: auto;
             display: block;
             margin: 20px 0;
+            border: 1px solid #ddd; 
         }
         .grid-container {
             display: grid;
-            grid-template-columns: auto auto;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
+            gap: 20px;
+        }
+        .grid-item {
+            padding: 10px;
+            border: 1px solid #eee;
+            border-radius: 5px;
+        }
+        h1, h2 {
+            color: #333;
         }
     </style>
 </head>
@@ -21,14 +31,15 @@
     <h1>{{title}} Result</h1>
     <h2><strong>Similarity Score:</strong> {{ similarity }}</h2>
     <div class="grid-container">
-        <div>
-            <h2>Uploaded Image:</h2>
+        <div class="grid-item">
+            <h2>Uploaded Image (Region of Interest Processed):</h2>
             <img src="{{ user_image_path }}" alt="User Uploaded Image" style="max-width:512px;">
         </div>
-        <div>
-            <h2>Most Similar Player: {{ player_name }}</p>
+        <div class="grid-item">
+            <h2>Most Similar Player: {{ player_name }}</h2>
             <img src="{{ player_image_path }}" alt="Most Similar Player" style="max-width:512px;">
         </div>
     </div>
+    <a href="{{ url_for('index') }}">Try another image</a>
 </body>
 </html>
